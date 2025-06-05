@@ -1,1 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TI Scientific Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: #2c3e50;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            border: 2px solid #34495e;
+        }
+
+        .display-container {
+            background: #1a252f;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 3px inset #34495e;
+        }
+
+        .secondary-display {
+            background: #34495e;
+            color: #bdc3c7;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            min-height: 20px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .main-display {
+            background: #2c3e50;
+            color: #00ff41;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: right;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-family: 'Courier New', monospace;
+            border: 2px inset #34495e;
+            text-shadow: 0 0 10px #00ff41;
+        }
+
+        .mode-indicator {
+            color: #f39c12;
+            font-size: 10px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            height: 60px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 2px outset;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 2px inset;
+        }
+
+        .btn-number {
+            background: linear-gradient(145deg, #ecf0f1, #bdc3c7);
+            color: #2c3e50;
+            border-color: #bdc3c7;
+        }
+
+        .btn-operator {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .btn-function {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .btn-special {
+            background: linear-gradient(145deg, #f39c12, #e67e22);
+            color: white;
+            border-color: #e67e22;
+        }
+
+        .btn-equals {
+            background: linear-gradient(145deg, #27ae60, #229954);
+            color: white;
+            border-color: #229954;
+        }
+
+        .btn-clear {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            color: white;
+            border-color: #c0392b;
+        }
+
+        .calculator-title {
+            text-align: center;
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                max-width: 350px;
+            }
+            
+            .btn {
+                height: 50px;
+                font-size: 12px;
+            }
+            
+            .main-display {
+                font-size: 20px;
+                min-height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="brand">TEXAS INSTRUMENTS</div>
+        <div class="calculator-title">Scientific Calculator</div>
+        
+        <div class="display-container">
+            <div class="secondary-display" id="secondaryDisplay"></div>
+            <div class="main-display" id="mainDisplay">0</div>
+            <div class="mode-indicator" id="modeIndicator">DEG</div>
+        </div>
+
+        <div class="button-grid">
+            <!-- Row 1 -->
+            <button class="btn btn-special" onclick="toggle2nd()">2nd</button>
+            <button class="btn btn-function" onclick="toggleMode()">MODE</button>
+            <button class="btn btn-function" onclick="deleteLast()">DEL</button>
+            <button class="btn btn-clear" onclick="clearAll()">ON/AC</button>
+
+            <!-- Row 2 -->
+            <button class="btn btn-function" onclick="calculate('square')">x²</button>
+            <button class="btn btn-function" onclick="calculate('cube')">x³</button>
+            <button class="btn btn-function" onclick="setOperator('^')">x^y</button>
+            <button class="btn btn-function" onclick="calculate('sqrt')">√</button>
+
+            <!-- Row 3 -->
+            <button class="btn btn-function" onclick="calculate('sin')">sin</button>
+            <button class="btn btn-function" onclick="calculate('cos')">cos</button>
+            <button class="btn btn-function" onclick="calculate('tan')">tan</button>
+            <button class="btn btn-function" onclick="calculate('ln')">ln</button>
+
+            <!-- Row 4 -->
+            <button class="btn btn-function" onclick="calculate('log')">log</button>
+            <button class="btn btn-function" onclick="addNumber(Math.PI.toString())">π</button>
+            <button class="btn btn-function" onclick="addNumber(Math.E.toString())">e</button>
+            <button class="btn btn-operator" onclick="setOperator('/')">÷</button>
+
+            <!-- Row 5 -->
+            <button class="btn btn-number" onclick="addNumber('7')">7</button>
+            <button class="btn btn-number" onclick="addNumber('8')">8</button>
+            <button class="btn btn-number" onclick="addNumber('9')">9</button>
+            <button class="btn btn-operator" onclick="setOperator('*')">×</button>
+
+            <!-- Row 6 -->
+            <button class="btn btn-number" onclick="addNumber('4')">4</button>
+            <button class="btn btn-number" onclick="addNumber('5')">5</button>
+            <button class="btn btn-number" onclick="addNumber('6')">6</button>
+            <button class="btn btn-operator" onclick="setOperator('-')">−</button>
+
+            <!-- Row 7 -->
+            <button class="btn btn-number" onclick="addNumber('1')">1</button>
+            <button class="btn btn-number" onclick="addNumber('2')">2</button>
+            <button class="btn btn-number" onclick="addNumber('3')">3</button>
+            <button class="btn btn-operator" onclick="setOperator('+')">+</button>
+
+            <!-- Row 8 -->
+            <button class="btn btn-function" onclick="toggleSign()">±</button>
+            <button class="btn btn-number" onclick="addNumber('0')">0</button>
+            <button class="btn btn-number" onclick="addNumber('.')">.</button>
+            <button class="btn btn-equals" onclick="equals()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentValue = "0";
+        let previousValue = "";
+        let operator = "";
+        let angleMode = "deg"; // deg or rad
+        let secondFunction = false;
+
+        const mainDisplay = document.getElementById('mainDisplay');
+        const secondaryDisplay = document.getElementById('secondaryDisplay');
+        const modeIndicator = document.getElementById('modeIndicator');
+
+        function updateDisplay() {
+            mainDisplay.textContent = currentValue;
+        }
+
+        function updateSecondaryDisplay(text = "") {
+            secondaryDisplay.textContent = text;
+        }
+
+        function addNumber(num) {
+            if (currentValue === "0" || currentValue === "Error") {
+                currentValue = num;
+            } else {
+                currentValue += num;
+            }
+            updateDisplay();
+        }
+
+        function setOperator(op) {
+            if (operator && previousValue) {
+                equals();
+            }
+            
+            previousValue = currentValue;
+            operator = op;
+            currentValue = "0";
+            
+            const opSymbol = op === '*' ? '×' : op === '/' ? '÷' : op === '-' ? '−' : op;
+            updateSecondaryDisplay(`${previousValue} ${opSymbol}`);
+        }
+
+        function equals() {
+            try {
+                if (operator && previousValue) {
+                    const prev = parseFloat(previousValue);
+                    const curr = parseFloat(currentValue);
+                    let result;
+
+                    switch (operator) {
+                        case '+':
+                            result = prev + curr;
+                            break;
+                        case '-':
+                            result = prev - curr;
+                            break;
+                        case '*':
+                            result = prev * curr;
+                            break;
+                        case '/':
+                            if (curr === 0) throw new Error("Division by zero");
+                            result = prev / curr;
+                            break;
+                        case '^':
+                            result = Math.pow(prev, curr);
+                            break;
+                    }
+
+                    currentValue = result.toString();
+                    previousValue = "";
+                    operator = "";
+                    updateSecondaryDisplay();
+                    updateDisplay();
+                }
+            } catch (error) {
+                currentValue = "Error";
+                updateDisplay();
+            }
+        }
+
+        function calculate(func) {
+            try {
+                const val = parseFloat(currentValue);
+                let result;
+
+                switch (func) {
+                    case 'square':
+                        result = val * val;
+                        break;
+                    case 'cube':
+                        result = val * val * val;
+                        break;
+                    case 'sqrt':
+                        if (val < 0) throw new Error("Invalid input");
+                        result = Math.sqrt(val);
+                        break;
+                    case 'sin':
+                        result = Math.sin(angleMode === "deg" ? val * Math.PI / 180 : val);
+                        break;
+                    case 'cos':
+                        result = Math.cos(angleMode === "deg" ? val * Math.PI / 180 : val);
+                        break;
+                    case 'tan':
+                        result = Math.tan(angleMode === "deg" ? val * Math.PI / 180 : val);
+                        break;
+                    case 'ln':
+                        if (val <= 0) throw new Error("Invalid input");
+                        result = Math.log(val);
+                        break;
+                    case 'log':
+                        if (val <= 0) throw new Error("Invalid input");
+                        result = Math.log10(val);
+                        break;
+                }
+
+                currentValue = result.toString();
+                updateDisplay();
+            } catch (error) {
+                currentValue = "Error";
+                updateDisplay();
+            }
+        }
+
+        function toggleSign() {
+            try {
+                const val = parseFloat(currentValue);
+                currentValue = (-val).toString();
+                updateDisplay();
+            } catch (error) {
+                // Invalid number, do nothing
+            }
+        }
+
+        function clearAll() {
+            currentValue = "0";
+            previousValue = "";
+            operator = "";
+            updateDisplay();
+            updateSecondaryDisplay();
+        }
+
+        function deleteLast() {
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = "0";
+            }
+            updateDisplay();
+        }
+
+        function toggleMode() {
+            angleMode = angleMode === "deg" ? "rad" : "deg";
+            modeIndicator.textContent = angleMode.toUpperCase();
+        }
+
+        function toggle2nd() {
+            secondFunction = !secondFunction;
+            // In a full implementation, this would change button functions
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if ('0123456789'.includes(key)) {
+                addNumber(key);
+            } else if (key === '.') {
+                addNumber('.');
+            } else if (key === '+') {
+                setOperator('+');
+            } else if (key === '-') {
+                setOperator('-');
+            } else if (key === '*') {
+                setOperator('*');
+            } else if (key === '/') {
+                event.preventDefault();
+                setOperator('/');
+            } else if (key === 'Enter' || key === '=') {
+                equals();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearAll();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            }
+        });
+    </script>
+</body>
+</html>
